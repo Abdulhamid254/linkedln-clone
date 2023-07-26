@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { FeedService } from '../services/feed.service';
 import { FeedPost } from '../models/post.interface';
@@ -23,11 +24,36 @@ export class FeedController {
   }
 
   // getting all post
-  @Get()
-  findAll(): Observable<FeedPost[]> {
-    return this.feedService.findAllPosts();
-  }
+  // @Get()
+  // findAll(): Observable<FeedPost[]> {
+  //   return this.feedService.findAllPosts();
+  // }
 
+  // finding the selected posts
+  // take query for how many post we want to take
+  // @Get()
+  // findSelected(
+  //   // eslint-disable-next-line @typescript-eslint/no-inferrable-types
+  //   @Query('take') take: number = 1,
+  //   // eslint-disable-next-line @typescript-eslint/no-inferrable-types
+  //   @Query('skip') skip: number = 1,
+  // ): Observable<FeedPost[]> {
+  //   // a check for limiting gettin lots of posts
+  //   take = take > 20 ? 20 : take;
+  //   return this.feedService.findPosts(take, skip);
+  // }
+
+  @Get()
+  findSelected(
+    // eslint-disable-next-line @typescript-eslint/no-inferrable-types,
+    @Query('take') take: number = 1,
+    // eslint-disable-next-line @typescript-eslint/no-inferrable-types,
+    @Query('skip') skip: number = 1,
+  ): Observable<FeedPost[]> {
+    take = take > 20 ? 20 : take; // convert query parameter to a number
+    // skip = +skip; // Convert the query parameter to a number
+    return this.feedService.findPosts(take, skip);
+  }
   //update post
   @Put(':id')
   update(
