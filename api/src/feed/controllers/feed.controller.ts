@@ -12,6 +12,7 @@ import { FeedService } from '../services/feed.service';
 import { FeedPost } from '../models/post.interface';
 import { Observable } from 'rxjs';
 import { DeleteResult, UpdateResult } from 'typeorm';
+import { PaginationParameters } from '../dto/pagination.parameters.dto';
 
 @Controller('feed')
 export class FeedController {
@@ -43,16 +44,24 @@ export class FeedController {
   //   return this.feedService.findPosts(take, skip);
   // }
 
+  // @Get()
+  // findSelected(
+  //   // eslint-disable-next-line @typescript-eslint/no-inferrable-types,
+  //   @Query('take') take: number = 1,
+  //   // eslint-disable-next-line @typescript-eslint/no-inferrable-types,
+  //   @Query('skip') skip: number = 1,
+  // ): Observable<FeedPost[]> {
+  //   take = take > 20 ? 20 : take; // convert query parameter to a number
+  //   // skip = +skip; // Convert the query parameter to a number
+  //   return this.feedService.findPosts(take, skip);
+  // }
+
   @Get()
   findSelected(
-    // eslint-disable-next-line @typescript-eslint/no-inferrable-types,
-    @Query('take') take: number = 1,
-    // eslint-disable-next-line @typescript-eslint/no-inferrable-types,
-    @Query('skip') skip: number = 1,
+    @Query() getFeedPostParameters: PaginationParameters,
   ): Observable<FeedPost[]> {
-    take = take > 20 ? 20 : take; // convert query parameter to a number
-    // skip = +skip; // Convert the query parameter to a number
-    return this.feedService.findPosts(take, skip);
+    // console.log(getFeedPostParameters);
+    return this.feedService.findPosts(getFeedPostParameters);
   }
   //update post
   @Put(':id')
