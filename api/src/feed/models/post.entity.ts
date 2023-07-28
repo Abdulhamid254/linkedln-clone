@@ -1,8 +1,10 @@
 /* eslint-disable prettier/prettier */
+import { UserEntity } from 'src/auth/models/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -18,4 +20,8 @@ export class FeedPostEntity {
   // @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   @CreateDateColumn()
   createdAt: Date;
+
+  // MANY POSTS CAN BE TIED TO ONE authors
+  @ManyToOne(() => UserEntity, (userEntity) => userEntity.feedPosts)
+  author: UserEntity;
 }
