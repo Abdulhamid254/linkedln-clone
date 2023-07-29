@@ -16,6 +16,9 @@ import { Observable } from 'rxjs';
 import { DeleteResult, UpdateResult } from 'typeorm';
 import { PaginationParameters } from '../dto/pagination.parameters.dto';
 import { JwtGuard } from 'src/auth/guards/jwt.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { Role } from 'src/auth/models/role.enum';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
 
 @Controller('feed')
 export class FeedController {
@@ -25,7 +28,8 @@ export class FeedController {
 
   // THE POST COMES FROM THE BODY WE SEND
   // can only create a post if you are logged in thats why wehave added the req.user
-  @UseGuards(JwtGuard)
+  @Roles(Role.ADMIN, Role.PREMIUM)
+  @UseGuards(JwtGuard, RolesGuard)
   @Post()
   create(@Body() feedPost: FeedPost, @Request() req): Observable<FeedPost> {
     return this.feedService.createPost(req.user, feedPost);
