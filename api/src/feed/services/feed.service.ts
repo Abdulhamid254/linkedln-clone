@@ -6,6 +6,7 @@ import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { FeedPost } from '../models/post.interface';
 import { Observable, from } from 'rxjs';
 import { PaginationParameters } from '../dto/pagination.parameters.dto';
+import { User } from 'src/auth/models/user.interface';
 
 @Injectable()
 export class FeedService {
@@ -16,7 +17,9 @@ export class FeedService {
 
   // we are using repository design pattern that allows us not to write design patterns ourselves
   // from keyword helps us transform our promise to observable
-  createPost(feedPost: FeedPost): Observable<FeedPost> {
+  // we need the user here because the user becomes the author
+  createPost(user: User, feedPost: FeedPost): Observable<FeedPost> {
+    feedPost.author = user;
     return from(this.feedPostRepository.save(feedPost));
   }
 

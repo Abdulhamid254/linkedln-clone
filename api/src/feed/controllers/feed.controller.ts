@@ -7,21 +7,28 @@ import {
   Post,
   Put,
   Query,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 import { FeedService } from '../services/feed.service';
 import { FeedPost } from '../models/post.interface';
 import { Observable } from 'rxjs';
 import { DeleteResult, UpdateResult } from 'typeorm';
 import { PaginationParameters } from '../dto/pagination.parameters.dto';
+import { JwtGuard } from 'src/auth/guards/jwt.guard';
 
 @Controller('feed')
 export class FeedController {
   constructor(private feedService: FeedService) {}
 
-  @Post()
+  // safeguarding the routes
+
   // THE POST COMES FROM THE BODY WE SEND
-  create(@Body() post: FeedPost): Observable<FeedPost> {
-    return this.feedService.createPost(post);
+  // can only create a post if you are logged in thats why wehave added the req.user
+  @UseGuards(JwtGuard)
+  @Post()
+  create(@Body() feedPost: FeedPost, @Request() req): Observable<FeedPost> {
+    return this.feedService.createPost(req.user, feedPost);
   }
 
   // getting all post
