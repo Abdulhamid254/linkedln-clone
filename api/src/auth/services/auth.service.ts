@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { from, Observable, of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
-import { Repository } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 import { UserEntity } from '../models/user.entity';
 import { User } from '../models/user.interface';
 // import { User } from '../models/user.class';
@@ -41,6 +41,70 @@ export class AuthService {
             return user;
           }),
         );
+      }),
+    );
+  }
+
+  // validating user & jwt
+  // select enabls us to select everything we get back from the user table except for the logs
+  validateUser(email: string, password: string): Observable<User> {
+    // const userRepository = getRepository(UserEntity);
+
+    const options: FindOneOptions<UserEntity> = {
+      where: { email },
+      select: ['id', 'firstName', 'lastName', 'email', 'password', 'role'],
+      // exclude: ['logs'], // Exclude the 'logs' column from the query result
+    };
+    return from(this.userRepository.findOne(options)).pipe(
+      // comparing the initial password with hashed password
+      // we want to return a user bt we check if password is correct first
+      switchMap((user: User) => {
+        if (!user) {
+          throw new HttpException(
+            { status: HttpStatus.FORBIDDEN, error: 'Invalid Credentials' },
+            HttpStatus.FORBIDDEN,
+          );
+        }
+        return from(bcrypt.compare(password, user.password)).pipe(
+          map((isValidPassword: boolean) => {
+            if (isValidPassword) {
+              // delete function here is bcoz we want to not get user password in the user object for safety
+              delete user.password;
+              return user;
+            }
+          }),
+        );
+      }),
+    );
+  }
+
+  // loggin user
+  login(user: User): Observable<string> {
+    const { email, password } = user;
+    // before we make the request we want to validate user
+    return this.validateUser(email, password).pipe(
+      switchMap((user: User) => {
+        if (user) {
+          // create JWT - credentials
+          // return a promise then we wrap it inside from to change it to an observable
+          return from(this.jwtService.signAsync({ user }));
+        } else {
+          throw new HttpException(
+            { status: HttpStatus.NOT_FOUND, error: 'User Not Found' },
+            HttpStatus.NOT_FOUND,
+          );
+        }
+      }),
+    );
+  }
+
+  getJwtUser(jwt: string): Observable<User | null> {
+    return from(this.jwtService.verifyAsync(jwt)).pipe(
+      map(({ user }: { user: User }) => {
+        return user;
+      }),
+      catchError(() => {
+        return of(null);
       }),
     );
   }
