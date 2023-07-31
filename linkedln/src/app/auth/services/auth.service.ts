@@ -2,7 +2,16 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { NewUser } from '../models/newUser.model';
-import { BehaviorSubject, Observable, of, switchMap, take, tap } from 'rxjs';
+import {
+  BehaviorSubject,
+  Observable,
+  from,
+  map,
+  of,
+  switchMap,
+  take,
+  tap,
+} from 'rxjs';
 
 import jwt_decode from 'jwt-decode';
 
@@ -10,7 +19,7 @@ import { Role, User } from '../models/user.model';
 import { environment } from 'src/environments/environment';
 import { UserResponse } from '../models/userResponse.model';
 import { Capacitor, Plugins } from '@capacitor/core';
-import { Storage } from '@capacitor/storage';
+import { GetResult, Storage } from '@capacitor/storage';
 
 @Injectable({
   providedIn: 'root',
@@ -85,6 +94,27 @@ export class AuthService {
   //capacitor is just a wrapper that allows cross platform functionality
   //tap enables us to do something with the response... we use tap when we want to do something else rather than modifying the response
 
+  // checkin in if token is in storage helps deal with on refresh
+  isTokenInStorage(): Observable<boolean> {
+    return from(Storage.get({ key: 'token' })).pipe(
+      map((data: GetResult) => {
+        const tokenValue = data.value as string;
+        if (!tokenValue) return false; // Explicitly return false here if token is not present
+        // if it makes a pass above
+        const decodedToken: UserResponse = jwt_decode(tokenValue);
+        // changing it from seconds to milliseconds
+        const jwtExpirationInMsSinceUnixEpoch = decodedToken.exp * 1000;
+        const isExpired =
+          new Date() > new Date(jwtExpirationInMsSinceUnixEpoch);
+        if (isExpired) return false; // Explicitly return false here if token is expired
+        if (decodedToken.user) {
+          this.user$.next(decodedToken.user);
+          return true;
+        }
+        return false; // Explicitly return false here for any other case
+      })
+    );
+  }
   // logout functionality
   logout(): void {
     this.user$.next(null);

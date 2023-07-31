@@ -25,19 +25,11 @@ export class AuthGuard implements CanLoad {
       // ie if they have already logged in and refreshed the page the token can be gotten from storage and home page loaded
       // switch map nneded so that if they already have atoken in storage this will call another method & that will returntrue or false as well
       // CHECKING IF USER IS LOGGED IN
-      switchMap((isUserLoggedIn: boolean): Observable<true> => {
+      switchMap((isUserLoggedIn: boolean) => {
         if (isUserLoggedIn) {
-          return new Observable<true>((observer) => {
-            observer.next(true);
-            observer.complete();
-          });
-        } else {
-          // Handle the case when user is not logged in, possibly by returning an empty observable or an error observable.
-          // For example:
-          return new Observable<true>((observer) => {
-            observer.error('User not logged in');
-          });
+          return of(isUserLoggedIn);
         }
+        return this.authService.isTokenInStorage();
       }),
       // we tap into it and whatever that boolean type is we can do something
       //if they are not logged in we want to reroute them to the login
