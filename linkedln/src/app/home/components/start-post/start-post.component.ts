@@ -1,6 +1,7 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { ModalComponent } from './modal/modal.component';
+import { DataService } from '../../services/data.service';
 
 @Component({
   selector: 'app-start-post',
@@ -8,9 +9,10 @@ import { ModalComponent } from './modal/modal.component';
   styleUrls: ['./start-post.component.scss'],
 })
 export class StartPostComponent implements OnInit {
-  @Output() create: EventEmitter<any> = new EventEmitter();
-
-  constructor(public modalController: ModalController) {}
+  constructor(
+    public modalController: ModalController,
+    private dataService: DataService
+  ) {}
 
   ngOnInit() {}
 
@@ -23,8 +25,13 @@ export class StartPostComponent implements OnInit {
     await modal.present();
 
     const { data } = await modal.onDidDismiss();
-    if (!data) return;
-    this.create.emit(data.post.body);
+    if (data) {
+      console.log('data exists');
+    }
+    console.log('data', data);
+
+    // if (!data) return;
+    // this.dataService.setData(data.post.body);
   }
 
   // ngOnDestroy() {
