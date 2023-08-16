@@ -3,6 +3,7 @@ import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 import { Role } from '../models/role.enum';
+import { User } from '../models/user.interface';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -22,7 +23,7 @@ export class RolesGuard implements CanActivate {
       return true;
     }
     // when we are getting the user here is because when we login we get the jwt the jwt is needed in order to create a post and from there the jwt we are able to get whom the author of the post is
-    const { user } = context.switchToHttp().getRequest();
+    const { user }: { user: User } = context.switchToHttp().getRequest();
     // check to see if the roles we passed in the controller are here if they are it returns true
     return requiredRoles.some((role) => user.role?.includes(role));
   }
