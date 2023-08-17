@@ -39,6 +39,7 @@ export class AllPostsComponent implements OnInit {
         if (postBody) {
           this.postService.createPost(postBody).subscribe(
             (post: Post) => {
+              // unshift here add the post to the start of the array
               this.allLoadedPosts.unshift(post);
             },
             (error) => {

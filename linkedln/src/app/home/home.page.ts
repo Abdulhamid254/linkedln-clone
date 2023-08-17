@@ -16,7 +16,7 @@ export class HomePage implements OnDestroy {
   ngOnInit() {
     this.dataSubscription = this.dataService
       .getDataObservable()
-      .subscribe((postBody: string | undefined) => {
+      .subscribe((postBody) => {
         this.body = postBody || '';
       });
   }
@@ -25,4 +25,5 @@ export class HomePage implements OnDestroy {
     // Unsubscribe from the observable to prevent memory leaks
     this.dataSubscription.unsubscribe();
   }
+  //
 }

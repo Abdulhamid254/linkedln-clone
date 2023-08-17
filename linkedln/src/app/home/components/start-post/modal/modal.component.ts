@@ -8,8 +8,9 @@ import { ModalController } from '@ionic/angular';
   styleUrls: ['./modal.component.scss'],
 })
 export class ModalComponent implements OnInit {
-  @ViewChild('form')
-  form!: NgForm;
+  @ViewChild('form') form!: NgForm;
+
+  formValue: any = {};
 
   constructor(public modalController: ModalController) {}
 
@@ -20,8 +21,8 @@ export class ModalComponent implements OnInit {
   }
 
   onPost() {
-    if (!this.form.valid) return;
-    const body = this.form.value['body'];
+    if (!this.form?.valid) return;
+    const body = this.form?.value?.body;
     this.modalController.dismiss(
       {
         post: {

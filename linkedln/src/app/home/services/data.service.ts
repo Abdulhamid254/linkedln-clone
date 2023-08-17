@@ -10,10 +10,12 @@ export class DataService {
     undefined
   );
 
+  // USED BY THE INITIAL COMPONENT
   setData(data: string) {
     this.sharedDataSubject.next(data);
   }
 
+  // ACCESSED  BY THE OTHER COMPONET
   getDataObservable(): Observable<string | undefined> {
     return this.sharedDataSubject.asObservable();
   }

@@ -17,21 +17,17 @@ export class StartPostComponent implements OnInit {
   ngOnInit() {}
 
   async presentModal() {
-    console.log('CREATE POST');
+    // console.log('CREATE POST');
     const modal = await this.modalController.create({
       component: ModalComponent,
       cssClass: 'my-custom-class2',
     });
     await modal.present();
+    const { data} = await modal.onDidDismiss();
+    ;
 
-    const { data } = await modal.onDidDismiss();
-    if (data) {
-      console.log('data exists');
-    }
-    console.log('data', data);
-
-    // if (!data) return;
-    // this.dataService.setData(data.post.body);
+    if (!data) return;
+    this.dataService.setData(data.post.body);
   }
 
   // ngOnDestroy() {
