@@ -52,6 +52,14 @@ export class AuthService {
     );
   }
 
+  get userId(): Observable<number | undefined> {
+    return this.user$.asObservable().pipe(
+      switchMap((user: User | null) => {
+        return of(user?.id);
+      })
+    );
+  }
+
   constructor(private http: HttpClient, private router: Router) {}
 
   // registering usr

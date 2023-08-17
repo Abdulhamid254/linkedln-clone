@@ -6,10 +6,12 @@ import {
   ViewChild,
 } from '@angular/core';
 import { PostService } from '../../services/post.service';
-import { IonInfiniteScroll } from '@ionic/angular';
+import { IonInfiniteScroll, ModalController } from '@ionic/angular';
 import { Post } from '../../models/Post';
 import { DataService } from '../../services/data.service';
-import { Subscription } from 'rxjs';
+import { BehaviorSubject, Subscription, take } from 'rxjs';
+import { AuthService } from 'src/app/auth/services/auth.service';
+import { ModalComponent } from '../start-post/modal/modal.component';
 
 @Component({
   selector: 'app-all-posts',
@@ -27,9 +29,13 @@ export class AllPostsComponent implements OnInit {
   numberOfPosts = 20;
   skipPosts = 0;
 
+  userId$ = new BehaviorSubject<number | undefined>(undefined);
+
   constructor(
+    public modalController: ModalController,
     private postService: PostService,
-    private dataService: DataService
+    private dataService: DataService,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
@@ -48,7 +54,14 @@ export class AllPostsComponent implements OnInit {
           );
         }
       });
+
     this.getPosts(false, null);
+
+    this.authService.userId
+      .pipe(take(1))
+      .subscribe((userId: number | undefined) => {
+        this.userId$.next(userId);
+      });
   }
 
   // you also can use a setter insead of this
@@ -89,5 +102,40 @@ export class AllPostsComponent implements OnInit {
 
   loadData(event: any) {
     this.getPosts(true, event);
+  }
+
+  async presentUpdateModal(postId: number) {
+    console.log('EDIT POST');
+
+    const modal = await this.modalController.create({
+      component: ModalComponent,
+      cssClass: 'my-custom-class2',
+      // passing in some props
+      componentProps: {
+        postId,
+      },
+    });
+    await modal.present();
+
+    const { data } = await modal.onDidDismiss();
+
+    if (!data) return;
+
+    const newPostBody = data.post.body;
+    this.postService.updatePost(postId, newPostBody).subscribe(() => {
+      const postIndex = this.allLoadedPosts.findIndex(
+        (post: Post) => post.id === postId
+      );
+      this.allLoadedPosts[postIndex].body = newPostBody;
+    });
+  }
+
+  deletePost(postId: number) {
+    // filtering to check if post.id does not match post id we remove it
+    this.postService.deletePost(postId).subscribe(() => {
+      this.allLoadedPosts = this.allLoadedPosts.filter(
+        (post: Post) => post.id !== postId
+      );
+    });
   }
 }
