@@ -29,8 +29,7 @@ export class FeedController {
 
   // THE POST COMES FROM THE BODY WE SEND
   // can only create a post if you are logged in thats why wehave added the req.user
-  @Roles(Role.ADMIN, Role.PREMIUM)
-  @UseGuards(JwtGuard, RolesGuard)
+  @UseGuards(JwtGuard)
   @Post()
   create(@Body() feedPost: FeedPost, @Request() req): Observable<FeedPost> {
     return this.feedService.createPost(req.user, feedPost);
@@ -56,6 +55,16 @@ export class FeedController {
   //   return this.feedService.findPosts(take, skip);
   // }
 
+  @UseGuards(JwtGuard)
+  @Get()
+  findSelected(
+    @Query('take') take = 1,
+    @Query('skip') skip = 1,
+  ): Observable<FeedPost[]> {
+    take = take > 20 ? 20 : take;
+    return this.feedService.findPosts(take, skip);
+  }
+
   // @Get()
   // findSelected(
   //   // eslint-disable-next-line @typescript-eslint/no-inferrable-types,
@@ -68,13 +77,14 @@ export class FeedController {
   //   return this.feedService.findPosts(take, skip);
   // }
 
-  @Get()
-  findSelected(
-    @Query() getFeedPostParameters: PaginationParameters,
-  ): Observable<FeedPost[]> {
-    // console.log(getFeedPostParameters);
-    return this.feedService.findPosts(getFeedPostParameters);
-  }
+  // @Get()
+  // findSelected(
+  //   @Query() getFeedPostParameters: PaginationParameters,
+  // ): Observable<FeedPost[]> {
+  //   // console.log(getFeedPostParameters);
+  //   return this.feedService.findPosts(getFeedPostParameters);
+  // }
+
   //update post
   // is creator guard emphasizes you have to be creator of the guard to edit or delete it
   @UseGuards(JwtGuard, IsCreatorGuard)

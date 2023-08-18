@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { FeedPost } from '../models/post.interface';
 import { Observable, from } from 'rxjs';
-import { PaginationParameters } from '../dto/pagination.parameters.dto';
+// import { PaginationParameters } from '../dto/pagination.parameters.dto';
 import { User } from 'src/auth/models/user.interface';
 
 @Injectable()
@@ -31,25 +31,29 @@ export class FeedService {
   // find posts
   // by default the take number is 10 is their is none
   // eslint-disable-next-line @typescript-eslint/no-inferrable-types
-  // findPosts(take: number = 10, skip: number = 0): Observable<FeedPost[]> {
-  //   return from(
-  //     this.feedPostRepository.findAndCount({ take, skip }).then(([posts]) => {
-  //       return <FeedPost[]>posts;
-  //     }),
-  //   );
-  // }
-
-  findPosts(
-    PaginationParameters: PaginationParameters,
-  ): Observable<FeedPost[]> {
+  findPosts(take: number = 10, skip: number = 0): Observable<FeedPost[]> {
     return from(
       this.feedPostRepository
-        .findAndCount(PaginationParameters)
-        .then(([posts]) => {
-          return <FeedPost[]>posts;
-        }),
+        .createQueryBuilder('post')
+        .innerJoinAndSelect('post.author', 'author')
+        .orderBy('post.createdAt', 'DESC')
+        .take(take)
+        .skip(skip)
+        .getMany(),
     );
   }
+
+  // findPosts(
+  //   PaginationParameters: PaginationParameters,
+  // ): Observable<FeedPost[]> {
+  //   return from(
+  //     this.feedPostRepository
+  //       .findAndCount(PaginationParameters)
+  //       .then(([posts]) => {
+  //         return <FeedPost[]>posts;
+  //       }),
+  //   );
+  // }
 
   //updating post
 
