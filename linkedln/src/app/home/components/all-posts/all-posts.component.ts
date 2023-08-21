@@ -23,6 +23,11 @@ export class AllPostsComponent implements OnInit {
   @ViewChild(IonInfiniteScroll) infiniteScroll: IonInfiniteScroll | undefined;
 
   // @Input() postBody?: string | undefined;
+  userFullImagePath: string | undefined;
+  private userImagePathSubscription: Subscription | undefined;
+
+  fullName$ = new BehaviorSubject<string | undefined>(undefined);
+  fullName = '';
 
   queryParams: string | undefined;
   allLoadedPosts: Post[] = [];
@@ -62,6 +67,22 @@ export class AllPostsComponent implements OnInit {
       .subscribe((userId: number | undefined) => {
         this.userId$.next(userId);
       });
+
+    this.authService.userFullName
+      .pipe(take(1))
+      .subscribe((fullName: string | undefined) => {
+        if (fullName) {
+          this.fullName = fullName;
+          this.fullName$.next(fullName);
+        }
+      });
+
+    this.userImagePathSubscription =
+      this.authService.userFullImagePath.subscribe(
+        (fullImagePath: string | undefined) => {
+          this.userFullImagePath = fullImagePath;
+        }
+      );
   }
 
   // you also can use a setter insead of this
@@ -137,5 +158,10 @@ export class AllPostsComponent implements OnInit {
         (post: Post) => post.id !== postId
       );
     });
+  }
+
+  ngOnDestroy() {
+    // this.userSubscription?.unsubscribe();
+    this.userImagePathSubscription?.unsubscribe();
   }
 }
