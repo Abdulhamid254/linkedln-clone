@@ -9,6 +9,7 @@ const FileType = require('file-type');
 import path = require('path');
 import { from, Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
+import multer = require('multer');
 
 type validFileExtension = 'png' | 'jpg' | 'jpeg';
 type validMimeType = 'image/png' | 'image/jpg' | 'image/jpeg';
@@ -21,7 +22,7 @@ const validMimeTypes: validMimeType[] = [
 ];
 
 export const saveImageToStorage = {
-  storage: diskStorage({
+  storage: multer.diskStorage({
     destination: './images',
     filename: (req, file, cb) => {
       const fileExtension: string = path.extname(file.originalname);

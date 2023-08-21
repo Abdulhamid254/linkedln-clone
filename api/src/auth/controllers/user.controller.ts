@@ -48,6 +48,7 @@ export class UserController {
 
     const imagesFolderPath = join(process.cwd(), 'images');
     const fullImagePath = join(imagesFolderPath + '/' + file.filename);
+    console.log('file', file);
 
     // the return here is boolean but we want to return user so that we call the updateuserimagebyId method
     return isFileExtensionSafe(fullImagePath).pipe(
@@ -66,10 +67,12 @@ export class UserController {
     );
   }
 
+  // getting the image of the user
   @UseGuards(JwtGuard)
   @Get('image')
   findImage(@Request() req, @Res() res): Observable<object> {
     const userId = req.user.id;
+    //getting an observable string bt we want an observable res that has image
     return this.userService.findImageNameByUserId(userId).pipe(
       switchMap((imageName: string) => {
         return of(res.sendFile(imageName, { root: './images' }));

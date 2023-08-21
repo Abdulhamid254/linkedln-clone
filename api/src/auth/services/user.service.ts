@@ -34,7 +34,6 @@ export class UserService {
     const user: User = new UserEntity();
     user.id = id;
     user.imagePath = imagePath;
-
     return from(this.userRepository.update(id, user));
   }
 
