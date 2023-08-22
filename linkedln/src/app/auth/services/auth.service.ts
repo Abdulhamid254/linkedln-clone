@@ -69,7 +69,7 @@ export class AuthService {
     //  we are getting observable user bt we want observable full name that comes from the user
     return this.user$.asObservable().pipe(
       switchMap((user: User | null) => {
-        const fullName = user?.firstName + '' + user?.lastName;
+        const fullName = user?.firstName + ' ' + user?.lastName;
         return of(fullName);
       })
     );
