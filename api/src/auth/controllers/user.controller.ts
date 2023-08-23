@@ -70,7 +70,8 @@ export class UserController {
   // getting the image of the user
   @UseGuards(JwtGuard)
   @Get('image')
-  findImage(@Request() req, @Res() res): Observable<object> {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  findImage(@Request() req, @Res() res): Observable<Object> {
     const userId = req.user.id;
     //getting an observable string bt we want an observable res that has image
     return this.userService.findImageNameByUserId(userId).pipe(
@@ -83,10 +84,7 @@ export class UserController {
   // finding user image by name
   @UseGuards(JwtGuard)
   @Get('image-name')
-  findUserImageName(
-    @Request() req,
-    @Res() res,
-  ): Observable<{ imageName: string }> {
+  findUserImageName(@Request() req): Observable<{ imageName: string }> {
     const userId = req.user.id;
     return this.userService.findImageNameByUserId(userId).pipe(
       switchMap((imageName: string) => {
