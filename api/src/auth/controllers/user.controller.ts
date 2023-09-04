@@ -29,7 +29,10 @@ import {
 // import { User } from '../models/user.class';
 import { UserService } from '../services/user.service';
 import { User } from '../models/user.interface';
-import { FriendRequest } from '../models/friend-request.interface';
+import {
+  FriendRequest,
+  FriendRequestStatus,
+} from '../models/friend-request.interface';
 
 @Controller('user')
 export class UserController {
@@ -50,7 +53,7 @@ export class UserController {
 
     const imagesFolderPath = join(process.cwd(), 'images');
     const fullImagePath = join(imagesFolderPath + '/' + file.filename);
-    console.log('file', file);
+    // console.log('file', file);
 
     // the return here is boolean but we want to return user so that we call the updateuserimagebyId method
     return isFileExtensionSafe(fullImagePath).pipe(
@@ -111,5 +114,40 @@ export class UserController {
   ): Observable<FriendRequest | { error: string }> {
     const receiverId = parseInt(receiverStringId);
     return this.userService.sendFriendRequest(receiverId, req.user);
+  }
+
+  // getting the status
+  @UseGuards(JwtGuard)
+  @Get('friend-request/status/:receiverId')
+  getFriendRequestStatus(
+    @Param('receiverId') receiverStringId: string,
+    @Request() req,
+  ): Observable<FriendRequestStatus> {
+    const receiverId = parseInt(receiverStringId);
+    return this.userService.getFriendRequestStatus(receiverId, req.user);
+  }
+
+  // updating the status or responding to the friend request
+  @UseGuards(JwtGuard)
+  @Put('friend-request/response/:friendRequestId')
+  respondTofriendRequest(
+    @Param('friendRequestId') friendRequestStringId: string,
+    @Body() statusResponse: FriendRequestStatus,
+  ): Observable<FriendRequestStatus> {
+    const friendRequestId = parseInt(friendRequestStringId);
+    return this.userService.respondToFriendRequest(
+      statusResponse.status,
+      friendRequestId,
+    );
+  }
+
+  // method for getting friend requestId
+
+  @UseGuards(JwtGuard)
+  @Get('friend-request/me/received-requests')
+  getFriendRequestsFromRecipients(
+    @Request() req,
+  ): Observable<FriendRequestStatus[]> {
+    return this.userService.getFriendRequestsFromRecipients(req.user);
   }
 }
