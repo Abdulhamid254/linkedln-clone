@@ -28,6 +28,8 @@ import {
 // } from '../models/friend-request.interface';
 // import { User } from '../models/user.class';
 import { UserService } from '../services/user.service';
+import { User } from '../models/user.interface';
+import { FriendRequest } from '../models/friend-request.interface';
 
 @Controller('user')
 export class UserController {
@@ -91,5 +93,23 @@ export class UserController {
         return of({ imageName });
       }),
     );
+  }
+
+  @UseGuards(JwtGuard)
+  @Get(':userId')
+  findUserById(@Param('userId') userStringId: string): Observable<User> {
+    const userId = parseInt(userStringId);
+    return this.userService.findUserById(userId);
+  }
+
+  // sending a friend request.
+  @UseGuards(JwtGuard)
+  @Post('friend-request/send/:receiverId')
+  sendConnectionRequest(
+    @Param('receiverId') receiverStringId: string,
+    @Request() req,
+  ): Observable<FriendRequest | { error: string }> {
+    const receiverId = parseInt(receiverStringId);
+    return this.userService.sendFriendRequest(receiverId, req.user);
   }
 }

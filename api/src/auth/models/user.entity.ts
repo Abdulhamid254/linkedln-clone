@@ -2,6 +2,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Role } from './role.enum';
 import { FeedPostEntity } from 'src/feed/models/post.entity';
+import { FriendRequestEntity } from './friend-request.entity';
 
 @Entity('user')
 export class UserEntity {
@@ -29,4 +30,18 @@ export class UserEntity {
   // one user tied to many posts
   @OneToMany(() => FeedPostEntity, (feedPostEntity) => feedPostEntity.author)
   feedPosts: FeedPostEntity[];
+
+  // one user can have many friend request
+  @OneToMany(
+    () => FriendRequestEntity,
+    (FriendRequestEntity) => FriendRequestEntity.creator,
+  )
+  sentFriendRequests: FriendRequestEntity[];
+
+  // where we have a receiver id.
+  @OneToMany(
+    () => FriendRequestEntity,
+    (FriendRequestEntity) => FriendRequestEntity.receiver,
+  )
+  receivedFriendRequests: FriendRequestEntity[];
 }
