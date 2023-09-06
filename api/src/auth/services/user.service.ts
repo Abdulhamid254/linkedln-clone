@@ -114,7 +114,12 @@ export class UserService {
       switchMap((receiver: User) => {
         return from(
           this.friendRequestRepository.findOne({
-            where: { creator: currentUser, receiver },
+            where: [
+              { creator: currentUser, receiver: receiver },
+              { creator: receiver, receiver: currentUser },
+            ],
+            // both the creator and receiver are foreign keys in the user table
+            relations: ['creator', 'receiver'],
           }),
         );
       }),
@@ -126,7 +131,12 @@ export class UserService {
       //   }
       // }),
       switchMap((friendRequest: FriendRequest) => {
-        return of({ status: friendRequest.status });
+        if (friendRequest?.receiver.id === currentUser.id) {
+          return of({
+            status: 'waiting-for-current-user-response' as FriendRequest_Status,
+          });
+        }
+        return of({ status: friendRequest?.status || 'not-sent' });
       }),
     );
   }
