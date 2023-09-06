@@ -1,22 +1,81 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { BannerColorService } from '../../services/banner-color.service';
 import { ActivatedRoute, UrlSegment } from '@angular/router';
-import { Observable, map } from 'rxjs';
+import { Observable, Subscription, map, switchMap, take, tap } from 'rxjs';
+import { User } from 'src/app/auth/models/user.model';
+import { ConnectionProfileService } from '../../services/connection-profile.service';
+import {
+  FriendRequestStatus,
+  FriendRequest_Status,
+} from '../../models/FriendRequest';
 
 @Component({
   selector: 'app-connection-profile',
   templateUrl: './connection-profile.component.html',
   styleUrls: ['./connection-profile.component.scss'],
 })
-export class ConnectionProfileComponent implements OnInit {
+export class ConnectionProfileComponent implements OnInit, OnDestroy {
+  user: User | undefined;
+  friendRequestStatus: FriendRequest_Status | undefined;
+  friendRequestStatusSubscription$: Subscription | undefined;
+  userSubscription$: Subscription | undefined;
   constructor(
     public bannerColorService: BannerColorService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private connectionProfileService: ConnectionProfileService
   ) {}
 
   ngOnInit() {
     // x here rep the number that it sis returning
-    this.getUserIdFromUrl().subscribe((x) => console.log(33, x));
+    // this.getUserIdFromUrl().subscribe((x) => console.log(33, x));
+    // this.getUser().subscribe((x) => console.log(3, x));
+    this.friendRequestStatusSubscription$ = this.getFriendRequestStatus()
+      .pipe(
+        tap((friendRequestStatus: FriendRequestStatus) => {
+          this.friendRequestStatus = friendRequestStatus.status;
+          this.userSubscription$ = this.getUser().subscribe((user: User) => {
+            this.user = user;
+            const imgPath = user.imagePath ?? 'blank-profile-picture.png';
+            // this.user['imagePath'] =
+            this.user['imagePath'] =
+              'http://localhost:3000/api/feed/image/' + imgPath;
+          });
+        })
+      )
+      .subscribe();
+  }
+
+  getUser(): Observable<User> {
+    return this.getUserIdFromUrl().pipe(
+      switchMap((userId: number) => {
+        return this.connectionProfileService.getConnectionUser(userId);
+      })
+    );
+  }
+
+  addUser(): Subscription {
+    this.friendRequestStatus = 'pending';
+    return this.getUserIdFromUrl()
+      .pipe(
+        switchMap((userId: number) => {
+          return this.connectionProfileService.addConnectionUser(userId);
+        })
+      )
+      .pipe(take(1))
+      .subscribe();
+  }
+
+  getFriendRequestStatus(): Observable<FriendRequestStatus> {
+    return this.getUserIdFromUrl().pipe(
+      switchMap((userId: number) => {
+        return this.connectionProfileService.getFriendRequestStatus(userId);
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.userSubscription$?.unsubscribe();
+    this.friendRequestStatusSubscription$?.unsubscribe;
   }
 
   //gets the user from the url
