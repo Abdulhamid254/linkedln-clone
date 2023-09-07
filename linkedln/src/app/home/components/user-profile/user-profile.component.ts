@@ -1,14 +1,27 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { DataService } from '../../services/data.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-user-profile',
   templateUrl: './user-profile.component.html',
   styleUrls: ['./user-profile.component.scss'],
 })
-export class UserProfileComponent  implements OnInit {
+export class UserProfileComponent implements OnInit, OnDestroy {
+  body = '';
+  private dataSubscription!: Subscription;
+  constructor(private dataService: DataService) {}
 
-  constructor() { }
+  ngOnInit() {
+    this.dataSubscription = this.dataService
+      .getDataObservable()
+      .subscribe((postBody) => {
+        this.body = postBody || '';
+      });
+  }
 
-  ngOnInit() {}
-
+  ngOnDestroy() {
+    // Unsubscribe from the observable to prevent memory leaks
+    this.dataSubscription.unsubscribe();
+  }
 }

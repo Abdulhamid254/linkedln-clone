@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { DataService } from './services/data.service';
 
@@ -7,23 +7,10 @@ import { DataService } from './services/data.service';
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
-export class HomePage implements OnDestroy {
-  body = '';
-  private dataSubscription!: Subscription;
+export class HomePage implements OnInit {
+  constructor() {}
 
-  constructor(private dataService: DataService) {}
+  ngOnInit() {}
 
-  ngOnInit() {
-    this.dataSubscription = this.dataService
-      .getDataObservable()
-      .subscribe((postBody) => {
-        this.body = postBody || '';
-      });
-  }
-
-  ngOnDestroy() {
-    // Unsubscribe from the observable to prevent memory leaks
-    this.dataSubscription.unsubscribe();
-  }
   //
 }
