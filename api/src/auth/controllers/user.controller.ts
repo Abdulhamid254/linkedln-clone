@@ -108,7 +108,7 @@ export class UserController {
   // sending a friend request.
   @UseGuards(JwtGuard)
   @Post('friend-request/send/:receiverId')
-  sendConnectionRequest(
+  sendFriendRequest(
     @Param('receiverId') receiverStringId: string,
     @Request() req,
   ): Observable<FriendRequest | { error: string }> {
@@ -130,7 +130,7 @@ export class UserController {
   // updating the status or responding to the friend request
   @UseGuards(JwtGuard)
   @Put('friend-request/response/:friendRequestId')
-  respondTofriendRequest(
+  respondToFriendRequest(
     @Param('friendRequestId') friendRequestStringId: string,
     @Body() statusResponse: FriendRequestStatus,
   ): Observable<FriendRequestStatus> {
@@ -149,5 +149,11 @@ export class UserController {
     @Request() req,
   ): Observable<FriendRequestStatus[]> {
     return this.userService.getFriendRequestsFromRecipients(req.user);
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('friends/my')
+  getFriends(@Request() req): Observable<User[]> {
+    return this.userService.getFriends(req.user);
   }
 }

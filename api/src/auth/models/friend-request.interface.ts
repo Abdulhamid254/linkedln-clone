@@ -4,7 +4,7 @@ import { User } from './user.interface';
 
 export type FriendRequest_Status =
   | 'not-sent'
-  | 'Pending'
+  | 'pending'
   | 'accepted'
   | 'declined'
   | 'waiting-for-current-user-response';
