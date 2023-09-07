@@ -1,4 +1,26 @@
 <app-header></app-header>
+<!-- <ng-container
+        *ngIf="
+          ['not-sent', 'pending', 'waiting-for-current-user-response'].includes(
+            friendRequestStatus
+          )
+        "
+      >
+        <ion-button
+          (click)="addUser()"
+          [disabled]="
+            ['pending', 'waiting-for-current-user-response'].includes(
+              friendRequestStatus
+            )
+          "
+          shape="round"
+          >{{
+            friendRequestStatus === "waiting-for-current-user-response"
+              ? "Accept Request"
+              : "Connect"
+          }}</ion-button
+        >
+      </ng-container> -->
 
 <ion-content>
   <ion-card>
@@ -37,10 +59,10 @@
     </ion-card-header>
 
     <ion-card-content>
-      <!-- <ng-container
+      <ng-container
         *ngIf="
           ['not-sent', 'pending', 'waiting-for-current-user-response'].includes(
-            friendRequestStatus
+            friendRequestStatus!
           )
         "
       >
@@ -48,7 +70,7 @@
           (click)="addUser()"
           [disabled]="
             ['pending', 'waiting-for-current-user-response'].includes(
-              friendRequestStatus
+              friendRequestStatus!
             )
           "
           shape="round"
@@ -58,31 +80,6 @@
               : "Connect"
           }}</ion-button
         >
-      </ng-container> -->
-      <ng-container
-        *ngIf="
-          friendRequestStatus !== undefined &&
-          ['not-sent', 'pending', 'waiting-for-current-user-response'].includes(
-            friendRequestStatus
-          )
-        "
-      >
-        <ion-button
-          (click)="addUser()"
-          [disabled]="
-            friendRequestStatus !== undefined &&
-            ['pending', 'waiting-for-current-user-response'].includes(
-              friendRequestStatus
-            )
-          "
-          shape="round"
-        >
-          {{
-            friendRequestStatus === "waiting-for-current-user-response"
-              ? "Accept Request"
-              : "Connect"
-          }}
-        </ion-button>
       </ng-container>
       <ion-button fill="outline">
         <ion-icon slot="start" name="lock-closed"></ion-icon>

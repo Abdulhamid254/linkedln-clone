@@ -9,7 +9,8 @@
                 style="cursor: pointer"
                 [routerLink]="['/', 'home', post.author.id]"
               >
-                <ion-img [src]="post.fullImagePath"></ion-img>
+                <!-- <ion-img [src]="post.fullImagePath"></ion-img> -->
+                <ion-img [src]="$any(post).fullImagePath"></ion-img>
               </ion-avatar>
             </ion-col>
 

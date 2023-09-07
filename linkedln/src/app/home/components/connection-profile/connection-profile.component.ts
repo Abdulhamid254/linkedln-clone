@@ -1,13 +1,14 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { BannerColorService } from '../../services/banner-color.service';
 import { ActivatedRoute, UrlSegment } from '@angular/router';
-import { Observable, Subscription, map, switchMap, take, tap } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
+import { map, switchMap, take, tap } from 'rxjs/operators';
 import { User } from 'src/app/auth/models/user.model';
-import { ConnectionProfileService } from '../../services/connection-profile.service';
 import {
   FriendRequestStatus,
   FriendRequest_Status,
 } from '../../models/FriendRequest';
+import { BannerColorService } from '../../services/banner-color.service';
+import { ConnectionProfileService } from '../../services/connection-profile.service';
 
 @Component({
   selector: 'app-connection-profile',
@@ -19,16 +20,14 @@ export class ConnectionProfileComponent implements OnInit, OnDestroy {
   friendRequestStatus: FriendRequest_Status | undefined;
   friendRequestStatusSubscription$: Subscription | undefined;
   userSubscription$: Subscription | undefined;
+
   constructor(
     public bannerColorService: BannerColorService,
     private route: ActivatedRoute,
-    private connectionProfileService: ConnectionProfileService
+    public connectionProfileService: ConnectionProfileService
   ) {}
 
   ngOnInit() {
-    // x here rep the number that it sis returning
-    // this.getUserIdFromUrl().subscribe((x) => console.log(33, x));
-    // this.getUser().subscribe((x) => console.log(3, x));
     this.friendRequestStatusSubscription$ = this.getFriendRequestStatus()
       .pipe(
         tap((friendRequestStatus: FriendRequestStatus) => {
@@ -36,7 +35,6 @@ export class ConnectionProfileComponent implements OnInit, OnDestroy {
           this.userSubscription$ = this.getUser().subscribe((user: User) => {
             this.user = user;
             const imgPath = user.imagePath ?? 'blank-profile-picture.png';
-            // this.user['imagePath'] =
             this.user['imagePath'] =
               'http://localhost:3000/api/feed/image/' + imgPath;
           });
@@ -75,17 +73,13 @@ export class ConnectionProfileComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.userSubscription$?.unsubscribe();
-    this.friendRequestStatusSubscription$?.unsubscribe;
+    this.friendRequestStatusSubscription$?.unsubscribe();
   }
-
-  //gets the user from the url
 
   private getUserIdFromUrl(): Observable<number> {
     return this.route.url.pipe(
       map((urlSegment: UrlSegment[]) => {
-        // the + here is a unary operator changes string to number
-        // return +urlSegment[0].path
-        return parseInt(urlSegment[0].path);
+        return +urlSegment[0].path;
       })
     );
   }
