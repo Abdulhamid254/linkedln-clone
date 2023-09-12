@@ -13,6 +13,8 @@ export interface FriendRequestStatus {
   status?: FriendRequest_Status;
 }
 
+export type FriendRequestWithImagePath = FriendRequest & { imagePath: string };
+
 export interface FriendRequest {
   id: number;
   creatorId: User;
